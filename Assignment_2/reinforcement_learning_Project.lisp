@@ -116,7 +116,7 @@
 ;The slot "ref" refers to other story facts which occur at the same time. (see below the temporal order chunk explanation, i.e., lines 141-146).
 ;The slot "level" is to hold the previously retrieved level of reasoning chunk in order to use it when it is necessary. (You might need this at some point in first-order and second-order reasoning)
 
-(chunk-type story subject negation verb object location time type self-ref ref level)
+(chunk-type story subject negation verb object location time type self-ref ref)
 
 
 ;For the time sequences of the events. (You might need these but it is not necessary if you find other ways to model).
@@ -151,6 +151,11 @@
 
 ;Here, you are expected to write the model's knowledge representations about the story facts (i.e., lines 140-146) based on the defined story chunk-type above.
 
+(firstSentence isa story subject maxi negation nil verb put object chips location "cupboard" time t0 type action self-ref firstSentence ref nil)
+(secondSentence isa story subject sally negation nil verb put object chips location "oven" time t1 type action self-ref secondSentence ref thirdSentence)
+(thirdSentence isa story subject maxi negation nil verb see object sally location nil time t1 type perception self-ref thirdSentence ref fourthSentence)
+(fourthSentence isa story subject sally negation not verb see object maxi location nil time t1 type perception self-ref fourthSentence ref secondSentence)
+(fifthSentence isa story subject mother negation nil verb put object chips location "trashbin" time t2 type action self-ref fifthSentence ref nil)
 
 
 
@@ -158,8 +163,67 @@
  (goal isa goal state start type action)
 )
 
+(p start
+  =goal>
+    isa    goal
+    state  start
+  ==>
+  =goal>
+    state  get
+)
 
+(p match
+  =goal>
+    isa  goal
+    state get
+    type =act
+  ==>
+  +retrieval>
+    isa    story
+    action =act 
+)
 
+(p retrieved
+  =goal>
+    isa goal
+    state get
+  =retrieval>
+    isa story
+    location =loc
+  ==>
+  
+  =goal>
+    state  answer
+    output =loc
+)
+
+;(p getFirstSentence
+;  =goal>
+;    isa    goal
+;    state  get
+;  ==>
+;  +imaginal
+;    isa    story
+;    arg1   firstSentence)
+;
+;(p parseSentence
+;  =goal>
+;    isa    goal
+;    state  parse
+;  ==>
+;)
+;
+(p zeroResponse
+  =goal>
+    isa    goal
+    state  answer
+    output =out
+  ==>
+    !safe-eval! (push 0 *response*)
+    !safe-eval! (push (sdp (reasoning-zero reasoning-zero-0 reasoning-zero-0-1) :name :utility :u :at :reward) *response*)
+  =goal>
+    state  finish
+)
 
 ; For the Assignment 2, you are expected to write production rules to apply zero-order reasoning and gives the answer "trashbin" (as if the model reasons about the question "Where is the chips?").
 
