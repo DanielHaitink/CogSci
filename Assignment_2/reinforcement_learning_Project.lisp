@@ -95,7 +95,7 @@
 ;; The parameters below for tracking the model’s trace. You can change them if you need to turn off the details etc.
 ;; See reference manual of ACT-R for further details, which is in the “docs” folder of ACT-R’s main folder
 
-        :ult: t ;turn on the trace for the utilities
+        :ult t ;turn on the trace for the utilities
         :v  t   ; trace detail
         :act low  ; activation trace parameter
         :sact low ;save activation trace
@@ -148,14 +148,13 @@
  (t0 ISA tijd t0 1 t1 2 t2 3)
 
 
-
 ;Here, you are expected to write the model's knowledge representations about the story facts (i.e., lines 140-146) based on the defined story chunk-type above.
 
-(firstSentence isa story subject maxi negation nil verb put object chips location "cupboard" time t0 type action self-ref firstSentence ref nil)
-(secondSentence isa story subject sally negation nil verb put object chips location "oven" time t1 type action self-ref secondSentence ref thirdSentence)
-(thirdSentence isa story subject maxi negation nil verb see object sally location nil time t1 type perception self-ref thirdSentence ref fourthSentence)
-(fourthSentence isa story subject sally negation not verb see object maxi location nil time t1 type perception self-ref fourthSentence ref secondSentence)
-(fifthSentence isa story subject mother negation nil verb put object chips location "trashbin" time t2 type action self-ref fifthSentence ref nil)
+(firstSentence isa story subject maxi negation nil verb put object chips location "cupboard" time 1 type action self-ref firstSentence ref nil)
+(secondSentence isa story subject sally negation nil verb put object chips location "oven" time 2 type action self-ref secondSentence ref thirdSentence)
+(thirdSentence isa story subject maxi negation nil verb see object sally location nil time 2 type perception self-ref thirdSentence ref fourthSentence)
+(fourthSentence isa story subject sally negation not verb see object maxi location nil time 2 type perception self-ref fourthSentence ref secondSentence)
+(fifthSentence isa story subject mother negation nil verb put object chips location "trashbin" time 3 type action self-ref fifthSentence ref nil)
 
 
 
@@ -180,8 +179,20 @@
   ==>
   +retrieval>
     isa    story
-    action =act 
+    type   =act
+    time   3
 )
+
+(p retrieve
+  =retrieval>
+  =goal>
+    isa    goal
+    state  get
+  ==>
+  =goal>
+    isa get
+)
+
 
 (p retrieved
   =goal>
@@ -220,9 +231,9 @@
     output =out
   ==>
     !safe-eval! (push 0 *response*)
-    !safe-eval! (push (sdp (reasoning-zero reasoning-zero-0 reasoning-zero-0-1) :name :utility :u :at :reward) *response*)
-  =goal>
-    state  finish
+    !safe-eval! (push (spp (zeroResponse "you should write the name of the first production rule of the first-order strategy") :name :utility :u :at :reward) *response*)  
+    =goal>
+      state  finish
 )
 
 ; For the Assignment 2, you are expected to write production rules to apply zero-order reasoning and gives the answer "trashbin" (as if the model reasons about the question "Where is the chips?").
