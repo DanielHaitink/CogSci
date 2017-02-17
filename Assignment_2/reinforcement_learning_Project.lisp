@@ -84,13 +84,13 @@
 
 (sgp 
 
-	:esc ;  sub-symbolic level
-	:ol  ;  optimised learning
-	:rt  ;  retrieval threshold 
-	:ans ;  instantaneous noise
-  :egs ;  utility noise
-  :ul  ;  utility learning
-  :pas ; permanent noise 
+	:esc t;  sub-symbolic level
+	:ol  t;  optimised learning
+	:rt  0;  retrieval threshold 
+	:ans nil;  instantaneous noise
+  :egs 0;  utility noise
+  :ul  t;  utility learning
+  :pas nil; permanent noise 
 
 ;; The parameters below for tracking the model’s trace. You can change them if you need to turn off the details etc.
 ;; See reference manual of ACT-R for further details, which is in the “docs” folder of ACT-R’s main folder
@@ -159,81 +159,50 @@
 
 
 ;Below chunk assigns the goal at the beginning of the trial
- (goal isa goal state start type action)
+ (goal isa goal state get type action)
 )
 
-(p start
-  =goal>
-    isa    goal
-    state  start
-  ==>
-  =goal>
-    state  get
-)
-
+; Asks retrieval buffer if a story exists with type actin and time 3
 (p match
   =goal>
     isa  goal
     state get
     type =act
   ==>
+  =goal>
+    state  ret
   +retrieval>
     isa    story
     type   =act
     time   3
 )
 
-(p retrieve
-  =retrieval>
-  =goal>
-    isa    goal
-    state  get
-  ==>
-  =goal>
-    isa get
-)
-
-
+; If a story is retrieved, set goal state to answer and store the location in output
 (p retrieved
   =goal>
     isa goal
-    state get
+    state ret
   =retrieval>
     isa story
     location =loc
   ==>
-  
   =goal>
     state  answer
     output =loc
 )
 
-;(p getFirstSentence
-;  =goal>
-;    isa    goal
-;    state  get
-;  ==>
-;  +imaginal
-;    isa    story
-;    arg1   firstSentence)
-;
-;(p parseSentence
-;  =goal>
-;    isa    goal
-;    state  parse
-;  ==>
-;)
-;
+; If a answer can be given, print the zero order response
 (p zeroResponse
   =goal>
     isa    goal
     state  answer
     output =out
   ==>
-    !safe-eval! (push 0 *response*)
-    !safe-eval! (push (spp (zeroResponse "you should write the name of the first production rule of the first-order strategy") :name :utility :u :at :reward) *response*)  
     =goal>
       state  finish
+    !output! (=out)
+    !safe-eval! (push 0 *response*)
+    !safe-eval! (push (spp (zeroResponse "you should write the name of the first production rule of the first-order strategy") :name :utility :u :at :reward) *response*)  
 )
 
 ; For the Assignment 2, you are expected to write production rules to apply zero-order reasoning and gives the answer "trashbin" (as if the model reasons about the question "Where is the chips?").
@@ -247,18 +216,13 @@
 ;; 2) Cognitive Plausibility of the production rules
 ;; 3) The quality of the code document in terms of clear explanations.
 
-  
-
-
 ; For the Assignment 2, you're expected to write an initial utility value for the zero-order strategy below. 
 ; In the following assignments, you will also add intial utility values for the first-order and second-order strategies.
-
-
+(spp zeroResponse :u .7)
 
 ; For the Assignment 2, you're expected to write a reward value for the zero-order stategy below.
 ; In the following assignments, you will also add reward values for the first-order and second-order strategies.
-
-
+(spp zeroResponse :reward 1)
 
 )
 
