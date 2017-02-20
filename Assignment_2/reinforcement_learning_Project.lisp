@@ -137,7 +137,7 @@
 (put isa chunk) (see isa chunk) (type isa chunk) (maxi isa chunk) (sally isa chunk) (chips isa chunk) (mother isa chunk)
 
 ;goal state chunks. You’re expected to write the goal state chunks below 
-
+(retrieve isa chunk) (answerZero isa chunk) (finish isa chunk) (answerFirst isa chunk)
 
 ;temporal order chunk. There are three seperate time points in the story:
 ; at t0 Maxi put the chips into the cupboard.
@@ -162,7 +162,7 @@
  (goal isa goal state get type action)
 )
 
-; Asks retrieval buffer if a story exists with type actin and time 3
+; Asks retrieval buffer if a story exists with type action and time 3 (the latest location of the bag chips)
 (p match
   =goal>
     isa  goal
@@ -170,7 +170,7 @@
     type =act
   ==>
   =goal>
-    state  ret
+    state  retrieve
   +retrieval>
     isa    story
     type   =act
@@ -181,40 +181,40 @@
 (p retrieved
   =goal>
     isa goal
-    state ret
+    state retrieve
   =retrieval>
     isa story
     location =loc
   ==>
   =goal>
-    state  answer
+    state  answerZero
     output =loc
 )
 
-; If a answer can be given, print the zero order response
+; If answerZero is the state of the goal, give and print the zero order response
 (p zeroResponse
   =goal>
     isa    goal
-    state  answer
+    state  answerZero
     output =out
   ==>
     =goal>
       state  finish
     !output! (=out)
     !safe-eval! (push 0 *response*)
-    !safe-eval! (push (spp (zeroResponse "you should write the name of the first production rule of the first-order strategy") :name :utility :u :at :reward) *response*)  
+    !safe-eval! (push (spp (zeroResponse firstResponse) :name :utility :u :at :reward) *response*)  
 )
 
-; For the Assignment 2, you are expected to write production rules to apply zero-order reasoning and gives the answer "trashbin" (as if the model reasons about the question "Where is the chips?").
+; First Order response, is not used nor implemented, but it has to be refered to by the spp command
+(p firstResponse
+  =goal>
+    isa    goal
+    state  answerFirst
+  ==>
+    =goal>
+      state finish
+)
 
-; Th production rule that gives the answer should also have the following functions for the output of the model:
-; To put 0 (zero) as a strategy level representing the zero-order strategy to the variable response:  !safe-eval! (push 0 *response*)  
-; To write the name of values of the reasoning chunks: !safe-eval! (push (sdp (reasoning-zero reasoning-zero-0 reasoning-zero-0-1) :name :utility :u :at :reward) *response*)
-
-;; The assignment will be graded in terms of the following criteria:
-;; 1) Output
-;; 2) Cognitive Plausibility of the production rules
-;; 3) The quality of the code document in terms of clear explanations.
 
 ; For the Assignment 2, you're expected to write an initial utility value for the zero-order strategy below. 
 ; In the following assignments, you will also add intial utility values for the first-order and second-order strategies.
