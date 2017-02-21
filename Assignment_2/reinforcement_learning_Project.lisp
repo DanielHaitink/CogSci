@@ -184,35 +184,105 @@
     state retrieve
   =retrieval>
     isa story
+    subject  =sub
+    negation =neg
+    verb     =ver
+    object   =obj
     location =loc
+    time     =tim
+    type     =typ
+    ref      =re
   ==>
   =goal>
-    state  answerZero
-    output =loc
+    state  generalnaamgeven
+  +imaginal>
+    isa story
+    subject  =sub
+    negation =neg
+    verb     =ver
+    object   =obj
+    location =loc
+    time     =tim
+    type     =typ
+    ref      =re
 )
 
 ; If answerZero is the state of the goal, give and print the zero order response
 (p zeroResponse
-  =goal>
+   =goal>
     isa    goal
-    state  answerZero
-    output =out
+    state  chooseStrategy
+   =imaginal>
+    isa    story
+    location =loc
   ==>
     =goal>
       state  finish
+      output =loc
     !output! (=out)
     !safe-eval! (push 0 *response*)
     !safe-eval! (push (spp (zeroResponse firstResponse) :name :utility :u :at :reward) *response*)  
 )
+
+(p beginFirstResponse
+   =goal>
+    isa      goal
+    state    chooseStrategy
+   =imaginal>
+    isa      story
+    time     =t
+    subject  =sub
+  ==>
+   =goal>
+    state seen
+   +retrieval>
+     isa      story
+     time     =t
+     negation nil
+     subject  maxi
+     action   perception
+     object   =sub
+)
+
+(p isSeen
+  =goal>
+   isa goal
+   state seen
+  =retrieval>
+==>
+  =goal>
+   state answerFirst
+)
+
+(p notSeen
+  =goal>
+   isa  goal
+   state seen
+  =retrieval>
+   buffer empty ;check if retrieval failed
+==>
+  =goal>
+
+  +retrieval>
+   subject  maxi
+   negation nil
+)
+
 
 ; First Order response, is not used nor implemented, but it has to be refered to by the spp command
 (p firstResponse
   =goal>
     isa    goal
     state  answerFirst
+   =imaginal>
+    isa    story
+    location =loc
   ==>
     =goal>
       state finish
+    !output! (=out)
+    !safe-eval! (push 1 *response*)
+    !safe-eval! (push (spp (zeroResponse "you should write the name of the first production rule of the first-order strategy") :name :utility :u :at :reward) *response*)
 )
 
 
