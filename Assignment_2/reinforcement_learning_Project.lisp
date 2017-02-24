@@ -36,7 +36,7 @@
 
 ;; do experiment 100 times 
 (defun do-fbt ()  	
-	(dotimes (i 100)
+	(dotimes (i 50)
             (setf *response* nil)					 		
 			(fbt)
                (push *response* *hold-responses*)
@@ -137,7 +137,8 @@
 (put isa chunk) (see isa chunk) (type isa chunk) (maxi isa chunk) (sally isa chunk) (chips isa chunk) (mother isa chunk)
 
 ;goal state chunks. You’re expected to write the goal state chunks below 
-(retrieve isa chunk) (answerZero isa chunk) (finish isa chunk) (answerFirst isa chunk)
+(retrieve isa chunk) (answerZero isa chunk) (finish isa chunk) (answerFirst isa chunk) (chooseStrategy isa chunk)
+(maxiPerception isa chunk) (seen isa chunk) (findAction isa chunk)
 
 ;temporal order chunk. There are three seperate time points in the story:
 ; at t0 Maxi put the chips into the cupboard.
@@ -171,6 +172,7 @@
   ==>
   =goal>
     state  retrieve
+  -imaginal>
   +retrieval>
     isa    story
     type   =act
@@ -185,26 +187,25 @@
   =retrieval>
     isa story
     subject  =sub
-    negation =neg
-    verb     =ver
+    negation nil
     object   =obj
     location =loc
     time     =tim
     type     =typ
-    ref      =re
+  ?imaginal>
+   state     free
+   buffer    empty
   ==>
   =goal>
-    state  generalnaamgeven
+    state    chooseStrategy
   +imaginal>
     isa story
     subject  =sub
-    negation =neg
-    verb     =ver
+    negation nil
     object   =obj
     location =loc
     time     =tim
     type     =typ
-    ref      =re
 )
 
 ; If answerZero is the state of the goal, give and print the zero order response
@@ -219,11 +220,12 @@
     =goal>
       state  finish
       output =loc
-    !output! (=out)
+    !output! (=loc)
     !safe-eval! (push 0 *response*)
-    !safe-eval! (push (spp (zeroResponse firstResponse) :name :utility :u :at :reward) *response*)  
+    !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)  
 )
 
+; Retrieves if maxi has seen the action in the imaginal buffer
 (p beginFirstResponse
    =goal>
     isa      goal
@@ -240,34 +242,89 @@
      time     =t
      negation nil
      subject  maxi
-     action   perception
+     type   perception
      object   =sub
 )
 
+; Check if revtrieval of the perception has succeeded, if so answer first order
 (p isSeen
   =goal>
-   isa goal
+   isa   goal
    state seen
   =retrieval>
+   isa   story
 ==>
   =goal>
    state answerFirst
 )
 
+; Check if the retrieval has returned an error, if so search for a perception of maxi without a negation
 (p notSeen
   =goal>
-   isa  goal
+   isa   goal
    state seen
-  =retrieval>
-   buffer empty ;check if retrieval failed
+  ?retrieval>
+   state error ;check if retrieval failed
 ==>
   =goal>
-
+   state    maxiPerception
+  -imaginal>
   +retrieval>
+   isa      story
    subject  maxi
    negation nil
+   type     perception
 )
 
+; Check if maxi has seen something else, and search for an action at that time
+(p hasMaxiSeen
+  =goal>
+   isa   goal
+   state maxiPerception
+  =retrieval>
+   isa    story 
+   time   =t
+   object =obj
+==>
+  =goal>
+   state   findAction
+  -imaginal>
+  +retrieval>
+   isa     story
+   subject =obj
+   object  chips
+   time    =t
+   type    action
+)
+
+; Check if an action is found, then put retrieved story in imaginal and give first order reply
+(p actionFound
+  =goal>
+   isa   goal
+   state findAction
+  =retrieval>
+    isa story
+    subject  =sub
+    negation nil
+    object   =obj
+    location =loc
+    time     =tim
+    type     =typ
+  ?imaginal>
+   state   free
+   buffer  empty
+==>
+  =goal>   
+    state  answerFirst
+  +imaginal>
+    isa story
+    subject  =sub
+    negation nil
+    object   =obj
+    location =loc
+    time     =tim
+    type     =typ
+)
 
 ; First Order response, is not used nor implemented, but it has to be refered to by the spp command
 (p firstResponse
@@ -280,19 +337,21 @@
   ==>
     =goal>
       state finish
-    !output! (=out)
+    !output! (=loc)
     !safe-eval! (push 1 *response*)
-    !safe-eval! (push (spp (zeroResponse "you should write the name of the first production rule of the first-order strategy") :name :utility :u :at :reward) *response*)
+    !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
 )
 
 
 ; For the Assignment 2, you're expected to write an initial utility value for the zero-order strategy below. 
 ; In the following assignments, you will also add intial utility values for the first-order and second-order strategies.
-(spp zeroResponse :u .7)
+(spp zeroResponse :u 1)
+(spp beginFirstResponse :u 0)
 
 ; For the Assignment 2, you're expected to write a reward value for the zero-order stategy below.
 ; In the following assignments, you will also add reward values for the first-order and second-order strategies.
-(spp zeroResponse :reward 1)
+(spp zeroResponse :reward -.1)
+(spp beginFirstResponse :reward .1)
 
 )
 
