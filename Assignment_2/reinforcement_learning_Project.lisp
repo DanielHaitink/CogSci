@@ -152,9 +152,9 @@
 ;Here, you are expected to write the model's knowledge representations about the story facts (i.e., lines 140-146) based on the defined story chunk-type above.
 
 (firstSentence isa story subject maxi negation nil verb put object chips location "cupboard" time 1 type action self-ref firstSentence ref nil)
-(secondSentence isa story subject sally negation nil verb put object chips location "oven" time 2 type action self-ref secondSentence ref thirdSentence)
-(thirdSentence isa story subject maxi negation nil verb see object sally location nil time 2 type perception self-ref thirdSentence ref fourthSentence)
-(fourthSentence isa story subject sally negation not verb see object maxi location nil time 2 type perception self-ref fourthSentence ref secondSentence)
+(secondSentence isa story subject sally negation nil verb put object chips location "oven" time 2 type action self-ref secondSentence ref nil)
+(thirdSentence isa story subject maxi negation nil verb see object sally location nil time 2 type perception self-ref thirdSentence ref secondSentence)
+(fourthSentence isa story subject sally negation not verb see object maxi location nil time 2 type perception self-ref fourthSentence ref thirdSentence)
 (fifthSentence isa story subject mother negation nil verb put object chips location "trashbin" time 3 type action self-ref fifthSentence ref nil)
 
 
@@ -341,6 +341,28 @@
       state finish
     !output! (=loc)
     !safe-eval! (push 1 *response*)
+    !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
+)
+
+(p beginSecondResponse
+  =goal>
+   isa   goal
+   state 
+
+)
+
+(p secondResponse
+  =goal>
+    isa    goal
+    state  answerSecond
+   =imaginal>
+    isa    story
+    location =loc
+  ==>
+    =goal>
+      state finish
+    !output! (=loc)
+    !safe-eval! (push 2 *response*)
     !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
 )
 
