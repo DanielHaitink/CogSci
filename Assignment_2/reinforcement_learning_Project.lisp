@@ -86,7 +86,7 @@
 
 	:esc t;  sub-symbolic level
 	:ol  t;  optimised learning
-	:rt  0;  retrieval threshold 
+	:rt  -4;  retrieval threshold 
 	:ans nil;  instantaneous noise
   :egs 0;  utility noise
   :ul  t;  utility learning
@@ -179,7 +179,8 @@
     time   3
 )
 
-; If a story is retrieved, set goal state to answer and store the location in output
+; If a story is retrieved, set goal state to answer and store the story in the imaginal buffer. 
+; After this it either goes into answerZero or beginFirstOrder
 (p retrieved
   =goal>
     isa goal
@@ -208,7 +209,7 @@
     type     =typ
 )
 
-; If answerZero is the state of the goal, give and print the zero order response
+; If chooseStrategy is the state of the goal and the activation of zeroResponse is higher than beginFirstResponse, give and print the zero order response
 (p zeroResponse
    =goal>
     isa    goal
@@ -225,7 +226,8 @@
     !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)  
 )
 
-; Retrieves if maxi has seen the action in the imaginal buffer
+; If chooseStrategy is the state of the goal and the activation of beginFistResponse is higher than zeroResponse
+; It will retrieve if maxi has seen the action (which was stored in the imaginal buffer)
 (p beginFirstResponse
    =goal>
     isa      goal
@@ -246,7 +248,7 @@
      object   =sub
 )
 
-; Check if revtrieval of the perception has succeeded, if so answer first order
+; If goal state is seen and the revtrieval of the perception has succeeded, the answer is first order
 (p isSeen
   =goal>
    isa   goal
@@ -258,7 +260,7 @@
    state answerFirst
 )
 
-; Check if the retrieval has returned an error, if so search for a perception of maxi without a negation
+; If goal state is seen and if the retrieval has returned an error, search for a perception of maxi without a negation
 (p notSeen
   =goal>
    isa   goal
@@ -276,7 +278,7 @@
    type     perception
 )
 
-; Check if maxi has seen something else, and search for an action at that time
+; If goal state is maxiPerception and maxi has seen something else, and search for an action at that time
 (p hasMaxiSeen
   =goal>
    isa   goal
@@ -297,7 +299,7 @@
    type    action
 )
 
-; Check if an action is found, then put retrieved story in imaginal and give first order reply
+; If goal state is findAction and if an action is found, then put retrieved story in imaginal and give first order reply
 (p actionFound
   =goal>
    isa   goal
@@ -326,7 +328,7 @@
     type     =typ
 )
 
-; First Order response, is not used nor implemented, but it has to be refered to by the spp command
+; if goal state is answerFirst, give first order response
 (p firstResponse
   =goal>
     isa    goal
@@ -345,13 +347,13 @@
 
 ; For the Assignment 2, you're expected to write an initial utility value for the zero-order strategy below. 
 ; In the following assignments, you will also add intial utility values for the first-order and second-order strategies.
-(spp zeroResponse :u 1)
-(spp beginFirstResponse :u 0)
+(spp zeroResponse :u 10)
+(spp beginFirstResponse :u 2)
 
 ; For the Assignment 2, you're expected to write a reward value for the zero-order stategy below.
 ; In the following assignments, you will also add reward values for the first-order and second-order strategies.
-(spp zeroResponse :reward -.1)
-(spp beginFirstResponse :reward .1)
+(spp zeroResponse :reward 0)
+(spp beginFirstResponse :reward 0)
 
 )
 
