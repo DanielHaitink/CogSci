@@ -36,7 +36,7 @@
 
 ;; do experiment 100 times 
 (defun do-fbt ()  	
-	(dotimes (i 50)
+	(dotimes (i 100)
             (setf *response* nil)					 		
 			(fbt)
                (push *response* *hold-responses*)
@@ -88,7 +88,7 @@
 	:ol  t;  optimised learning
 	:rt  -4;  retrieval threshold 
 	:ans nil;  instantaneous noise
-  :egs 0;  utility noise
+  :egs 1;  utility noise
   :ul  t;  utility learning
   :pas nil; permanent noise 
 
@@ -344,14 +344,11 @@
     !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
 )
 
+; Utilities of zeroResponse and beginFirstResponse
+(spp zeroResponse :u 40)
+(spp beginFirstResponse :u 20)
 
-; For the Assignment 2, you're expected to write an initial utility value for the zero-order strategy below. 
-; In the following assignments, you will also add intial utility values for the first-order and second-order strategies.
-(spp zeroResponse :u 10)
-(spp beginFirstResponse :u 2)
-
-; For the Assignment 2, you're expected to write a reward value for the zero-order stategy below.
-; In the following assignments, you will also add reward values for the first-order and second-order strategies.
+; Rewards of zeroResponse and beginFirstResponse
 (spp zeroResponse :reward 0)
 (spp beginFirstResponse :reward 0)
 
