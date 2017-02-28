@@ -344,27 +344,6 @@
     !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
 )
 
-(p beginSecondResponse
-  =goal>
-   isa   goal
-   state 
-
-)
-
-(p secondResponse
-  =goal>
-    isa    goal
-    state  answerSecond
-   =imaginal>
-    isa    story
-    location =loc
-  ==>
-    =goal>
-      state finish
-    !output! (=loc)
-    !safe-eval! (push 2 *response*)
-    !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
-)
 
 ; Utilities of zeroResponse and beginFirstResponse
 (spp zeroResponse :u 40)
