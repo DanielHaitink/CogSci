@@ -260,13 +260,13 @@
    state answerFirst
 )
 
-; If goal state is seen and if the retrieval has returned an error, search for a perception of maxi without a negation
+; If goal state is seen and if the retrieval has returned nothing, search for a perception of maxi without a negation
 (p notSeen
   =goal>
    isa   goal
    state seen
   ?retrieval>
-   state error ;check if retrieval failed
+   buffer empty ;check if retrieval failed
 ==>
   =goal>
    state    maxiPerception
