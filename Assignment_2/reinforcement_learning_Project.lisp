@@ -179,7 +179,7 @@
     time   3
 )
 
-; If a story is retrieved, set goal state to answer and store the story in the imaginal buffer. 
+; If a story is retrieved, set goal state to chooseStrategy and store the story in the imaginal buffer. 
 ; After this it either goes into answerZero or beginFirstOrder
 (p retrieved
   =goal>
@@ -223,11 +223,12 @@
       output =loc
     !output! (=loc)
     !safe-eval! (push 0 *response*)
-    !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)  
+    !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
+;    !safe-eval! (push (spp (zeroResponse beginFirstResponse beginSecondResponse) :name :utility :u :at :reward) *response*)      
 )
 
 ; If chooseStrategy is the state of the goal and the activation of beginFistResponse is higher than zeroResponse
-; It will retrieve if maxi has seen the action (which was stored in the imaginal buffer)
+; It will retrieve if Maxi has seen the action (which was stored in the imaginal buffer)
 (p beginFirstResponse
    =goal>
     isa      goal
@@ -243,12 +244,12 @@
      isa      story
      time     =t
      negation nil
-     subject  maxi
+     subject  maxi ;check if Maxi saw the action. This is so we can have first-order reasoning about what Maxi thinks.
      type   perception
      object   =sub
 )
 
-; If goal state is seen and the revtrieval of the perception has succeeded, the answer is first order
+; If goal state is seen and the retrieval of the perception has succeeded, the answer is first order
 (p isSeen
   =goal>
    isa   goal
@@ -260,7 +261,7 @@
    state answerFirst
 )
 
-; If goal state is seen and if the retrieval has returned nothing, search for a perception of maxi without a negation
+; If goal state is seen and if the retrieval has returned nothing, search for a perception of Maxi without a negation
 (p notSeen
   =goal>
    isa   goal
@@ -298,6 +299,29 @@
    time    =t
    type    action
 )
+
+;Looks at what Sally thinks Maxi knows about the location of the chips
+;;;;; Ok dit gaat helemaal mis laat maar
+;(p sallySeenMaxi
+;  =goal>
+;   isa   goal
+;   state sallyPerception
+;  =retrieval>
+;   isa    story 
+;   time   =t
+;   object =obj
+;==>
+;  =goal>
+;   state   ;findAction ;geen idee nog
+;  -imaginal>
+;  +retrieval>
+;   isa     story
+;   subject =obj
+;   subject sally
+;   object  maxi ; look at what sally thinks maxi knows
+;   time    =t
+;   type perception ;we need to look at a perception event
+;)
 
 ; If goal state is findAction and if an action is found, then put retrieved story in imaginal and give first order reply
 (p actionFound
@@ -342,16 +366,36 @@
     !output! (=loc)
     !safe-eval! (push 1 *response*)
     !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
+;    !safe-eval! (push (spp (zeroResponse beginFirstResponse beginSecondResponse) :name :utility :u :at :reward) *response*)    
 )
 
+; if goal state is answerSecond, give second order response
+;(p secondResponse
+;  =goal>
+;    isa    goal
+;    state  answerSecond
+;   =imaginal>
+;    isa    story
+;    location =loc
+;  ==>
+;    =goal>
+;      state finish
+;    !output! (=loc)
+;    !safe-eval! (push 2 *response*)
+;    !safe-eval! (push (spp (zeroResponse beginFirstResponse beginSecondResponse) :name :utility :u :at :reward) *response*)
+;)
 
-; Utilities of zeroResponse and beginFirstResponse
+
+; Utilities of zeroResponse, beginFirstResponse and beginSecondResponse
 (spp zeroResponse :u 40)
 (spp beginFirstResponse :u 20)
+;(spp beginSecondResponse :u 10)
 
-; Rewards of zeroResponse and beginFirstResponse
+; Rewards of zeroResponse, beginFirstResponse and beginSecondResponse
 (spp zeroResponse :reward 0)
 (spp beginFirstResponse :reward 0)
+;(spp beginSecondResponse :reward 0)
+
 
 )
 
