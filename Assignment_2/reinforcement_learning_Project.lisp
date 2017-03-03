@@ -126,7 +126,8 @@
 ; The following chunk type is for the goals and their states. 
 ; The slot "type" is for the where question (action)
 ; The slot "output"  is for holding the output if the model (i.e., cupboard, oven, trashbin)
-(chunk-type goal state type output) 
+; strategy is used to know what strategy we are applying. This has to do with reusing code
+(chunk-type goal state type output strategy) 
 
 
 (add-dm
@@ -137,8 +138,9 @@
 (put isa chunk) (see isa chunk) (type isa chunk) (maxi isa chunk) (sally isa chunk) (chips isa chunk) (mother isa chunk)
 
 ;goal state chunks. You’re expected to write the goal state chunks below 
-(retrieve isa chunk) (answerZero isa chunk) (finish isa chunk) (answerFirst isa chunk) (chooseStrategy isa chunk)
-(maxiPerception isa chunk) (seen isa chunk) (findAction isa chunk)
+(retrieve isa chunk) (answerZero isa chunk) (finish isa chunk) (continueOrAnswerFirst isa chunk) (chooseStrategy isa chunk)
+(maxiPerception isa chunk) (seen isa chunk) (findAction isa chunk) (retrievemax isa chunk) (answersecond isa chunk)
+(seensally isa chunk) (answerfirst isa chunk) (findactionmaxi isa chunk)
 
 ;temporal order chunk. There are three seperate time points in the story:
 ; at t0 Maxi put the chips into the cupboard.
@@ -223,16 +225,43 @@
       output =loc
     !output! (=loc)
     !safe-eval! (push 0 *response*)
-    !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
-;    !safe-eval! (push (spp (zeroResponse beginFirstResponse beginSecondResponse) :name :utility :u :at :reward) *response*)      
+;    !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
+    !safe-eval! (push (spp (zeroResponse beginFirstResponse beginSecondResponse) :name :utility :u :at :reward) *response*)      
 )
 
-; If chooseStrategy is the state of the goal and the activation of beginFistResponse is higher than zeroResponse
-; It will retrieve if Maxi has seen the action (which was stored in the imaginal buffer)
+; Choose the second order response strategy
+(p beginSecondResponse
+   =goal>
+    isa   goal
+    state chooseStrategy
+  =imaginal>
+    isa    story
+==>
+  =goal>
+    state     retrievemax
+    strategy  2
+  =imaginal>
+)
+
+; Choose the first order response strategy
 (p beginFirstResponse
+  =goal>
+    isa   goal
+    state chooseStrategy
+  =imaginal>
+    isa    story
+==>
+  =goal>
+    state     retrievemax
+    strategy  1
+  =imaginal>
+)
+
+; It will retrieve if Maxi has seen the action (which was stored in the imaginal buffer)
+(p retrieveMaxiSeen
    =goal>
     isa      goal
-    state    chooseStrategy
+    state    retrievemax
    =imaginal>
     isa      story
     time     =t
@@ -300,29 +329,6 @@
    type    action
 )
 
-;Looks at what Sally thinks Maxi knows about the location of the chips
-;;;;; Ok dit gaat helemaal mis laat maar
-;(p sallySeenMaxi
-;  =goal>
-;   isa   goal
-;   state sallyPerception
-;  =retrieval>
-;   isa    story 
-;   time   =t
-;   object =obj
-;==>
-;  =goal>
-;   state   ;findAction ;geen idee nog
-;  -imaginal>
-;  +retrieval>
-;   isa     story
-;   subject =obj
-;   subject sally
-;   object  maxi ; look at what sally thinks maxi knows
-;   time    =t
-;   type perception ;we need to look at a perception event
-;)
-
 ; If goal state is findAction and if an action is found, then put retrieved story in imaginal and give first order reply
 (p actionFound
   =goal>
@@ -341,7 +347,7 @@
    buffer  empty
 ==>
   =goal>   
-    state  answerFirst
+    state  continueOrAnswerFirst
   +imaginal>
     isa story
     subject  =sub
@@ -352,11 +358,12 @@
     type     =typ
 )
 
-; if goal state is answerFirst, give first order response
+; if goal state is continueOrAnswerFirst and strategy is 1, give first order response
 (p firstResponse
   =goal>
-    isa    goal
-    state  answerFirst
+    isa      goal
+    state    continueOrAnswerFirst
+    strategy 1
    =imaginal>
     isa    story
     location =loc
@@ -365,36 +372,98 @@
       state finish
     !output! (=loc)
     !safe-eval! (push 1 *response*)
-    !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
-;    !safe-eval! (push (spp (zeroResponse beginFirstResponse beginSecondResponse) :name :utility :u :at :reward) *response*)    
+   ; !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
+    !safe-eval! (push (spp (zeroResponse beginFirstResponse beginSecondResponse) :name :utility :u :at :reward) *response*)    
+)
+
+; If state is continueOrAnswerFirst, ask if sally knows if maxi has seen the action in imaginal
+(p hasSallySeenMaxi
+  =goal>
+   isa      goal
+   state    continueOrAnswerFirst
+   strategy 2
+  =imaginal>
+   isa     story
+   subject =sub
+==>
+  =goal>
+    state  seenSally
+  +retrieval>
+    isa     story
+    subject =sub
+    object  maxi
+    type    perception
+)
+
+(p notSeenSally
+  =goal>
+   isa   goal
+   state seenSally
+  ?retrieval>
+   buffer empty
+==>
+  -imaginal>
+  =goal>
+   state   findActionMaxi
+  +retrieval>
+   isa     story
+   subject maxi
+   type    action
+)
+
+(p maxiActionFound
+  =goal>
+   isa   goal
+   state findActionMaxi
+  =retrieval>
+   isa   story
+   subject  =sub
+   object   =obj
+   location =loc
+   time     =tim
+   type     =typ
+  ?imaginal>
+   state   free
+   buffer  empty
+==>
+  =goal>
+   state  answerSecond
+  +imaginal>
+   isa story
+   subject  =sub
+   object   =obj
+   location =loc
+   time     =tim
+   type     =typ
 )
 
 ; if goal state is answerSecond, give second order response
-;(p secondResponse
-;  =goal>
-;    isa    goal
-;    state  answerSecond
-;   =imaginal>
-;    isa    story
-;    location =loc
-;  ==>
-;    =goal>
-;      state finish
-;    !output! (=loc)
-;    !safe-eval! (push 2 *response*)
-;    !safe-eval! (push (spp (zeroResponse beginFirstResponse beginSecondResponse) :name :utility :u :at :reward) *response*)
-;)
+(p secondResponse
+  =goal>
+    isa      goal
+    state    answerSecond
+    strategy 2
+   =imaginal>
+    isa    story
+    location =loc
+  ==>
+    =goal>
+      state finish
+    !output! (=loc)
+    !safe-eval! (push 2 *response*)
+    !safe-eval! (push (spp (zeroResponse beginFirstResponse beginSecondResponse) :name :utility :u :at :reward) *response*)
+)
 
 
 ; Utilities of zeroResponse, beginFirstResponse and beginSecondResponse
 (spp zeroResponse :u 40)
 (spp beginFirstResponse :u 20)
-;(spp beginSecondResponse :u 10)
+(spp beginSecondResponse :u 10)
 
 ; Rewards of zeroResponse, beginFirstResponse and beginSecondResponse
 (spp zeroResponse :reward 0)
 (spp beginFirstResponse :reward 0)
-;(spp beginSecondResponse :reward 0)
+(spp beginSecondResponse :reward 1)
 
 
 )
