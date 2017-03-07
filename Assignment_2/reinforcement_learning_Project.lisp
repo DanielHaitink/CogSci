@@ -225,7 +225,6 @@
       output =loc
     !output! (=loc)
     !safe-eval! (push 0 *response*)
-;    !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
     !safe-eval! (push (spp (zeroResponse beginFirstResponse beginSecondResponse) :name :utility :u :at :reward) *response*)      
 )
 
@@ -372,7 +371,6 @@
       state finish
     !output! (=loc)
     !safe-eval! (push 1 *response*)
-   ; !safe-eval! (push (spp (zeroResponse beginFirstResponse) :name :utility :u :at :reward) *response*)
     !safe-eval! (push (spp (zeroResponse beginFirstResponse beginSecondResponse) :name :utility :u :at :reward) *response*)    
 )
 
@@ -391,10 +389,24 @@
   +retrieval>
     isa     story
     subject =sub
+    negation nil
     object  maxi
     type    perception
 )
 
+; If sally has seen maxi, the answer is still oven and we can give the second order answer (Will not fire in default story)
+(p seenSally
+  =goal>
+    isa   goal
+    state seenSally
+  =retrieval>
+    isa story
+==>
+  =goal>
+   state answerSecond
+)
+
+; If Sally has NOT seen maxi, we search for an action which was performed by maxi
 (p notSeenSally
   =goal>
    isa   goal
@@ -411,6 +423,7 @@
    type    action
 )
 
+; If an action is found, put it in imaginal buffer and set goal to answerSecond
 (p maxiActionFound
   =goal>
    isa   goal
@@ -437,7 +450,7 @@
    type     =typ
 )
 
-; if goal state is answerSecond, give second order response
+; If goal state is answerSecond, give second order response
 (p secondResponse
   =goal>
     isa      goal
