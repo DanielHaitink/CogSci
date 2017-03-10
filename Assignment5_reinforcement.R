@@ -8,7 +8,7 @@
 #############   I will provide you the behavioral results after you submit this assignment.
 #############   Below you can find some hints to write the code for the graphs but you don't have to use the hints and you can do it in your own way, too.
 
-setwd("./Data")  ## set your workspace to the path where your output files are.
+setwd("/Data")  ## set your workspace to the path where your output files are.
 
 ## You might need to use the following packages
 require(ggplot2)
@@ -55,32 +55,32 @@ multiplot <- function(..., plotlist=NULL, cols) {
 #Before writing the for loop, do these two steps:
 
 #1) create a blank matrix which has 17 columns in order to prepare to store the information in the outputs and assign it to "dat" below.
-dat<-
+dat<-matrix(nrow=0,ncol=17)
 #2)produce a character vector of the names of txt output files in the named directory and assign it to "files" below.
-files<-    
+files<-list.files()
 
 #Now write a for loop for each file 
 for (i in files) {     
       # read each file in table format and create a dataframe (read.table function) and assign it to "X" below.
-    X<-    
+    X<-read.table(i)
    for (j in 1:100) {      # I provide you another for loop in order to add a new column (17th column) and add numbers to that column's rows from 1 to 100 for each file. You will use this new 17th column with numbers 1 to 100 for the x-axes in your graphs. 
        X$V17[j]<-j
    }
     #now, you should combine the X and dat matrices by rows and assign it to "dat" below.
-    dat<-
+    dat<-rbind(dat,X)
     #now, I provide you some manupilations in the data together with their explanations
     ds<-paste("",i, sep="")      #this adds " " to the name of file
     ds<-substr(ds, 1, nchar(ds)-4)#this removes the last 4 char (.txt)
     assign(ds, X)          # this assigns X to ds
 }
-dat = dat[-1,]      #this deletes the first row
+#dat = dat[-1,]      #this deletes the first row
 
 ## now, look at your dat matrix and if you see ERROR in some cells, change all of those ERRORs to the value 0.
         
 ####### In order to produce the proportion of reasoning strategies graph:
 
 # Encode the matrix named dat 's V16 column as a factor below. V16 is the column that shows the reasoning levels that was pushed to *response* function in your models (i.e, 0,1,2).
-dat$V16<- 
+dat$V16<- as.factor(dat$V16)
 # Build a contingency table (the function is called table) of the counts at each combination of V16 and V17 columns and make that table a dataframe and assign it to "y.df" below. When you use the table function together with the as.data.frame function, the y.df will have 3 columns named Var1, Var2, and Freq and 300 rows. Var1 shows the reasoning levels; Var2 shows the number of simulations (from 1 to 100, meaning that over time) 
 y.df<-
 # Divide the Freq column of y.df by 100 and assign to the new column called proportion below:    
