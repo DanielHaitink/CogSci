@@ -8,7 +8,7 @@
 #############   I will provide you the behavioral results after you submit this assignment.
 #############   Below you can find some hints to write the code for the graphs but you don't have to use the hints and you can do it in your own way, too.
 
-setwd("")  ## set your workspace to the path where your output files are.
+setwd("./Data")  ## set your workspace to the path where your output files are.
 
 ## You might need to use the following packages
 require(ggplot2)

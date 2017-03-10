@@ -15,7 +15,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
 (defvar *response* nil) ;; global variable that stores model output
 (defvar *model* nil)
 (defvar *hold-responses* nil)  ;; global variable that stores model output
@@ -30,7 +29,7 @@
       (setf *model* nil)
          (setf *model* t)
    )
-        (run 30 :real-time t) 
+        (run 30 :real-time nil) 
 )
 
 
@@ -469,15 +468,14 @@
 
 
 ; Utilities of zeroResponse, beginFirstResponse and beginSecondResponse
-(spp zeroResponse :u 40)
-(spp beginFirstResponse :u 20)
+(spp zeroResponse :u 100)
+(spp beginFirstResponse :u 70)
 (spp beginSecondResponse :u 10)
 
 ; Rewards of zeroResponse, beginFirstResponse and beginSecondResponse
 (spp zeroResponse :reward 0)
-(spp beginFirstResponse :reward 0)
-(spp beginSecondResponse :reward 1)
-
+(spp firstResponse :reward 0)
+(spp secondResponse :reward 10)
 
 )
 
