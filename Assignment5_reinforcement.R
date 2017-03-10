@@ -8,7 +8,7 @@
 #############   I will provide you the behavioral results after you submit this assignment.
 #############   Below you can find some hints to write the code for the graphs but you don't have to use the hints and you can do it in your own way, too.
 
-setwd("/Data")  ## set your workspace to the path where your output files are.
+setwd("./Documents/CogSci/Data")  ## set your workspace to the path where your output files are.
 
 ## You might need to use the following packages
 require(ggplot2)
@@ -82,7 +82,17 @@ for (i in files) {
 # Encode the matrix named dat 's V16 column as a factor below. V16 is the column that shows the reasoning levels that was pushed to *response* function in your models (i.e, 0,1,2).
 dat$V16<- as.factor(dat$V16)
 # Build a contingency table (the function is called table) of the counts at each combination of V16 and V17 columns and make that table a dataframe and assign it to "y.df" below. When you use the table function together with the as.data.frame function, the y.df will have 3 columns named Var1, Var2, and Freq and 300 rows. Var1 shows the reasoning levels; Var2 shows the number of simulations (from 1 to 100, meaning that over time) 
-y.df<-
+
+# Create 100 by 3 matrix containing the frequencies. Rows are the trails, collumns the strategy
+y.df<-matrix(0L, nrow = 100, ncol = 3, dimnames = list(c(1:100), c(0:2)))
+for(trail in 1:100) {
+  for(datRow in 1:length(dat$V1)) {
+    if(dat$V17[datRow] == trail) {
+      # Count freq
+      y.df[trail, dat$V16[datRow]] <- y.df[trail, dat$V16[datRow]] + 1
+    }
+  }
+}
 # Divide the Freq column of y.df by 100 and assign to the new column called proportion below:    
 y.df$proportion<-
 # Encode y.df$Var1 as factor and assign it to y.df$Var1 below:   
