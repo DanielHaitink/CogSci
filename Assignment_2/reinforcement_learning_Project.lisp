@@ -475,7 +475,7 @@
 ; Rewards of zeroResponse, beginFirstResponse and beginSecondResponse
 (spp zeroResponse :reward 0)
 (spp firstResponse :reward 0)
-(spp secondResponse :reward 10)
+(spp secondResponse :reward 20)
 
 )
 

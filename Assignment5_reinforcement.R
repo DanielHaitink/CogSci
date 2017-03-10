@@ -82,23 +82,37 @@ for (i in files) {
 # Encode the matrix named dat 's V16 column as a factor below. V16 is the column that shows the reasoning levels that was pushed to *response* function in your models (i.e, 0,1,2).
 dat$V16<- as.factor(dat$V16)
 # Build a contingency table (the function is called table) of the counts at each combination of V16 and V17 columns and make that table a dataframe and assign it to "y.df" below. When you use the table function together with the as.data.frame function, the y.df will have 3 columns named Var1, Var2, and Freq and 300 rows. Var1 shows the reasoning levels; Var2 shows the number of simulations (from 1 to 100, meaning that over time) 
+y.df<-matrix(0L, nrow = 300, ncol = 3, dimnames = list(c(1:300), c("trail", "strategy", "frequency")))
+strat = 0
+trail = 1
+for(row in 1:300) {
+  if(strat > 2) 
+    strat = 0
+  if (trail > 100)
+    trail = 1
+  
+  y.df[row, 1] = trail
+  y.df[row, 2] = strat
+  
+  strat = strat + 1
+  trail = trail + 1
+}
+
+for(row in 1:length(dat$V1)) {
+  y.df[y.df[,"trail"] == dat$V17[row] & y.df[, "strategy"] == dat$V16[row], 3] <- y.df[y.df[,"trail"] == dat$V17[row] & y.df[, "strategy"] == dat$V16[row], 3] + 1
+}
 
 # Create 100 by 3 matrix containing the frequencies. Rows are the trails, collumns the strategy
-y.df<-matrix(0L, nrow = 100, ncol = 3, dimnames = list(c(1:100), c(0:2)))
-for(trail in 1:100) {
-  for(datRow in 1:length(dat$V1)) {
-    if(dat$V17[datRow] == trail) {
+#y.df<-matrix(0L, nrow = 100, ncol = 3, dimnames = list(c(1:100), c(0:2)))
+#for(trail in 1:100) {
+#  for(datRow in 1:length(dat$V1)) {
+#    if(dat$V17[datRow] == trail) {
       # Count freq
-      y.df[trail, dat$V16[datRow]] <- y.df[trail, dat$V16[datRow]] + 1
-    }
-  }
-}
+#      y.df[trail, dat$V16[datRow]] <- y.df[trail, dat$V16[datRow]] + 1
+#    }
+#  }
+#}
 # Divide the Freq column of y.df by 100 and assign to the new column called proportion below:    
-y.df$proportion<-
-# Encode y.df$Var1 as factor and assign it to y.df$Var1 below:   
-y.df$Var1<- 
-# Encode y.df$Var2 as numeric and assign it to y.df$Var2 below:      
-y.df$Var2<-
 
 # Below, write 3 lines of code in order to change the name of the levels of factor Var1 from 0 to "Zero-order"; from 1 to "First-order"; from 2 to "Second-order".          
 
@@ -161,8 +175,17 @@ names(utilityValues_n)[names(utilityValues_n)=="Reasoning level"]  <- "reasoning
 
 ### Now, the data you will use for this graph is utilityValues_n. x is time and y is utility value. Similar to the first graph, second graph will have three lines indicating each reasoning strategies' utilities over time (1 to 100)
 
+# First plot
+p1 <- ggplot(utilityValues_n, aes(x=time, y=utility.value, colour=reasoning.level, group=reasoning.level)) +
+  geom_line() +
+  ggtitle("Utility Values over time")
 
+# Second plot
+p2 <- ggplot(data.frame(y.df), aes(x=trail, y=frequency, colour=strategy, group=strategy)) +
+  geom_line() +
+  ggtitle("Strategy Used")
 
 
 ## Now, use multiplot function in order to present the two graphs together in 2 columns
 
+multiplot(p1, p2, cols=2)
