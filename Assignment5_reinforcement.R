@@ -113,35 +113,37 @@ y.df$Var2<-
 # write a for loop that takes the average of V2 column for each time point (V17) and assign it to meanVectorZero
 meanVectorZero<-c(1)
 for (i in 1:100) {
-  meanVectorZero[i]<-        # write here if 17th column of dat is equal to 1,2,..100 get the mean of the second column      
+  meanVectorZero[i]<-mean(dat[dat$V17 == i , "V2"])       # write here if 17th column of dat is equal to 1,2,..100 get the mean of the second column      
 }
 
 # write a for loop that takes the average of V7 column for each time point (V17) and assign it to meanVectorFirst
 
 meanVectorFirst<-c(1)
 for (i in 1:100) {
-  meanVectorFirst[i]<-   # write here if 17th column of dat is equal to 1,2,..100 get the mean of the seventh column
+  meanVectorFirst[i]<-mean(dat[dat$V17 == i , "V7"])   # write here if 17th column of dat is equal to 1,2,..100 get the mean of the seventh column
 }
 
 # write a for loop that takes the average of V12 column for each time point (V17) and assign it to meanVectorSecond
 
 meanVectorSecond<-c(1)
 for (i in 1:100) {
-  meanVectorSecond[i]<-  # write here if 17th column of dat is equal to 1,2,..100 get the mean of the 12th column
+  meanVectorSecond[i]<-mean(dat[dat$V17 == i , "V12"])  # write here if 17th column of dat is equal to 1,2,..100 get the mean of the 12th column
 } 
-}
+
 
 # combine meanVectorZero,meanVectorFirst and meanVectorSecond by column and assign it to utility Values below
-utilityValues<-
+utilityValues<-matrix(nrow = 100, ncol = 0)
+utilityValues<-cbind(utilityValues<-cbind(utilityValues<- cbind(utilityValues, meanVectorZero), meanVectorFirst), meanVectorSecond)
+
 
 # create a vector called time that contains integers starting from 1 to 100 and assign to time below.
-time<-
+time<-c(1:100)
 
 # combine time and utilityValues by column and assign it to utilityValues below
-utilityValues<-
+utilityValues<-cbind(utilityValues, time)
   
 # make utilityValues a data frame and assign it to utilityValues below
-utilityValues<-
+utilityValues<-data.frame(utilityValues)
 
 
 ####### Make the utility values graph
