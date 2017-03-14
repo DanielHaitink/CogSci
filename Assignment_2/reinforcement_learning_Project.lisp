@@ -86,7 +86,7 @@
 	:esc t;  sub-symbolic level
 	:ol  t;  optimised learning
 	:rt  -4;  retrieval threshold 
-	:ans nil;  instantaneous noise
+	:ans 0.1;  instantaneous noise
   :egs 1;  utility noise
   :ul  t;  utility learning
   :pas nil; permanent noise 
@@ -469,7 +469,7 @@
 
 ; Utilities of zeroResponse, beginFirstResponse and beginSecondResponse
 (spp zeroResponse :u 100)
-(spp beginFirstResponse :u 70)
+(spp beginFirstResponse :u 40) 
 (spp beginSecondResponse :u 10)
 
 ; Rewards of zeroResponse, beginFirstResponse and beginSecondResponse
